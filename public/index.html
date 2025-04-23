@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrices con TensorFlow.js</title>
+    <!-- Importamos TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        input { margin: 5px; }
+        button { margin-top: 10px; }
+        .matriz, #resultado { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Operaciones con Matrices</h1>
+
+    <label>Filas Matriz 1: <input type="number" id="filas1" min="1" value="2"></label><br>
+    <!-- un solo input para asegurarnos que se pueda multiplicar -->
+    <label>Columnas Matriz 1 / Filas Matriz 2: <input type="number" id="columnas1" min="1" value="2"></label><br>
+    <label>Columnas Matriz 2: <input type="number" id="columnas2" min="1" value="2"></label><br>
+    <br>
+    <button onclick="generarMatrices()">Generar matrices aleatorias</button><br>
+    <button onclick="sumarMatrices()">Sumar</button><br>
+    <button onclick="multiplicarMatrices()">Multiplicar</button><br>
+
+    <div id="matrices"></div>
+    <br>
+    <div id="resultado"></div>
+
+    <script>
+        let matriz1, matriz2;
+
+        function generarMatrices() {
+            const filas1 = parseInt(document.getElementById("filas1").value);
+            const columnas1 = parseInt(document.getElementById("columnas1").value);
+            const columnas2 = parseInt(document.getElementById("columnas2").value);
+
+            // Usamos tf.randomUniform para generar matrices aleatorias
+            matriz1 = tf.randomUniform([filas1, columnas1], 1, 21, 'int32'); // le decimos que sea entre 1 y 20, 'int32' numeros enteros
+            matriz2 = tf.randomUniform([columnas1, columnas2], 1, 21, 'int32');
+
+            mostrarMatrices();
+        }
+
+        async function mostrarMatrices() {
+            const array1 = await matriz1.array();
+            // matriz.array() convierte un tensor (matriz) en una matriz de js normal para poder mostrarlo
+            const array2 = await matriz2.array();
+
+            let html = "<h3>Matriz 1</h3>" + array1.map(fila => fila.join(" ")).join("<br>");
+            html += "<h3>Matriz 2</h3>" + array2.map(fila => fila.join(" ")).join("<br>");
+
+            document.getElementById("matrices").innerHTML = html;
+            document.getElementById("resultado").innerHTML = "";
+        }
+
+        async function sumarMatrices() {
+            try {
+                // matriz1.add(matriz2): esto suma posicion por posicion
+                const resultado = matriz1.add(matriz2);
+                const arrayResultado = await resultado.array();
+
+                document.getElementById("resultado").innerHTML = "<h3>Resultados de la suma</h3>" +
+                    arrayResultado.map(fila => fila.join(" ")).join("<br>");
+            } catch (err) {
+                document.getElementById("resultado").innerHTML = "<span style='color:red;'>Error: Las dimensiones deben coincidir para sumar.</span>";
+            }
+        }
+
+        async function multiplicarMatrices() {
+            try {
+
+                // matriz1.matMul(matriz2): esto multiplica las matrices
+                const resultado = matriz1.matMul(matriz2);
+                const arrayResultado = await resultado.array();
+
+                document.getElementById("resultado").innerHTML = "<h3>Resultados de la Multiplicación</h3>" +
+                    arrayResultado.map(fila => fila.join(" ")).join("<br>");
+            } catch (err) {
+                document.getElementById("resultado").innerHTML = "<span style='color:red;'>Error en la multiplicación.</span>";
+            }
+        }
+    </script>
+</body>
+</html>
